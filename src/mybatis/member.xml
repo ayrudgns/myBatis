@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="test">
+ 	<!--
+ 		id 속성값은 식별자 : 보통 메소드 이름과 동일하게 한다.
+ 		sql 실행에 필요한 값들에 대해 자바클래스와 테이블의 컬럼을 매핑하여 처리한다.
+     	1) 값 대입할 ? 는 el 기호 #{}로 변경 -> 실행할 때 대입되는 기호, el은 해킹의 위험이 상대적으로 높다고 함.
+    	2) 값 대입할 형식을 parameterType 속성에 설정 (패키지명.클래스명 형식)
+    	3) sql 실행 결과가 매핑될 데이터 타입을 resultType으로 설정 (패키지명.클래스명 형식)
+ 	-->
+ 	<insert id="insert" parameterType="hrd.vo.Member">
+ 	INSERT INTO 
+ 	MEMBER_TBL_02 (CUSTNO, CUSTNAME, PHONE, ADDRESS,JOINDATE, GRADE, CITY) 
+	VALUES (#{custNo}, #{custName}, #{phone}, #{address}, SYSDATE, #{grade}, #{city})
+	<!-- 파라미터 타입이 클래스일 때, #{ }는 프로퍼티 이름을 정확히 '대소문자 구분하여 작성' -->
+	<!-- 여기서 프로퍼티 이름은 vo 클래스의 변수명 -->
+	<!-- 즉, 클래스에서 선언한 변수명과 #{ } 안의 프로퍼티 이름을 정확히 일치시켜야 함! -->
+ 	</insert>
+ 	
+ 	<update id="update" parameterType="hrd.vo.Member">
+ 	UPDATE MEMBER_TBL_02 
+ 	SET	PHONE = #{phone}, ADDRESS = #{address}, CITY = #{city} 
+ 	WHERE CUSTNO = #{custNo}
+ 	</update>
+  	
+ 	<delete id="deleteOne" parameterType="int">
+ 	DELETE FROM MEMBER_TBL_02 WHERE CUSTNO = #{custNo}
+ 	</delete>	
+ 		
+ 	<!-- select 실행 결과를 자동으로 Member 객체 생성 후 매핑한다. -->
+ 	<select id="selectOne" parameterType="int" resultType="hrd.vo.Member">
+ 	SELECT * FROM MEMBER_TBL_02 WHERE CUSTNO = #{custNo}
+ 	</select>
+ 	
+ 	<!-- select 실행 결과가 여러 행이 되는 List인 경우에는 <T>에 해당하는 제너릭 타입을 설정 -->
+ 	<select id="selectAll" resultType="hrd.vo.Member">
+ 	SELECT * FROM MEMBER_TBL_02
+ 	</select>
+
+ 	<!-- 동적쿼리 검색 -->
+ 	<!-- 예) WHERE CUSTNAME LIKE '%길%' => '길' 문자열은 #{find}로 전달되고, % 기호와 문자열을 연결하는 연산자가 ||이다. -->
+ 	<!-- (city와 grade는 완전 일치 검색이다.) -->
+ 	<select id="search" parameterType="java.util.Map" resultType="hrd.vo.Member">
+ 	SELECT * FROM MEMBER_TBL_02 
+	 	<if test="column=='name'">
+	 		WHERE CUSTNAME LIKE '%'||#{find}||'%'
+	 	</if>
+	 	<if test="column=='address'">
+	 		WHERE ADDRESS LIKE '%'||#{find}||'%'
+	 	</if>
+	 	<if test="column=='city'">
+	 		WHERE CITY = #{find}
+	 	</if>
+	 	<if test="column=='grade'">
+	 		WHERE GRADE = #{find}
+	 	</if>
+ 	</select>
+ 	
+ 	<!-- 테스트 검색 -->
+ 	<select id="searchName" parameterType="String" resultType="hrd.vo.Member">
+ 	SELECT * FROM MEMBER_TBL_02 WHERE CUSTNAME LIKE '%'||#{find}||'%'
+ 	<!-- WHERE CUSTNAME = #{custName} -->
+ 	</select>
+ 	
+ 	<select id="getNextSeq" resultType="int">
+ 	SELECT MEMBER_SEQ.NEXTVAL FROM DUAL
+ 	</select>
+ 	
+ 	<!-- * 로그인 테스트용으로, 다른 테이블의 sql 실행-->
+ 												 <!-- 파라미터 타입 뒤에 resultType="test.vo.User" 있던거 지움. -->
+ 	<select id="login" parameterType="java.util.Map">
+ 		SELECT MEM_IDX, NAME, EMAIL FROM TBL_MEMBER 
+ 		WHERE EMAIL = #{email} AND PASSWORD = #{password}
+ 	</select>
+ </mapper>
+ 
+ 
+ 
+ 
+ 
+ 

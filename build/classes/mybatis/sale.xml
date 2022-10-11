@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sale">
+<select id="sales" resultType="hrd.vo.SaleVO">
+SELECT met.CUSTNO, CUSTNAME, DECODE (met.GRADE, 'A', 'VIP', 'B', '일반', 'C', '직원') AS AGRADE,
+ASUM FROM MEMBER_TBL_02 met JOIN
+(SELECT CUSTNO, SUM(PRICE) ASUM FROM MONEY_TBL_02 MOT GROUP BY CUSTNO ORDER BY ASUM DESC) sale
+ON met.CUSTNO = sale.CUSTNO ORDER BY ASUM DESC
+</select> 
+</mapper>

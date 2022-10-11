@@ -1,0 +1,49 @@
+mybatis 시작하기
+
+1. mybatis 프레임워크 (프레임웍 : 라이브러리를 이용하여 구현과정을 형식화)
+	- 자바 퍼시스턴스(persistence, 영속성) 프레임워크라고 하며, 퍼시스턴스는 데이터베이스와 같이 데이터를 영구적으로 저장할 수 있는 특성이다.
+	- 데이터베이스의 sql 실행에 필요한 데이터와 자바클래스 사이의 매핑을 구현해준다. (db 테이블의 컬럼과 자바클래스의 변수를 바로 매핑해줌!)
+	- mybatis.org 참고하여 설정하기
+
+sql 실행하는 라이브러리 / 자동으로 구현해 주는 부분이 있어서 앞에서 했던 코딩을 많이 줄일 수 있다.
+
+1) 필요한 라이브러리 : ojdbc11.jar / mybatis-3.4.6.jar (WEB-INF 하위 폴더 lib에 드래그 앤 드롭)
+					=> 오라클 사용에 항상 필요함!
+					
+2) 필요한 mybatis 관련 소스들을 만드는 방법은 mybatis에서 알려준 형식대로 작성 (나중에 사이트에서 직접 확인!)
+	* mybatis 패키지 만들기
+		- 파일 확인 순서 : SqlSessionBean.java => db.properties => mybatis-config.xml => member.xml
+		- .xml은 설정에 필요한 값들을 저장하기 위해 사용되는 파일 형식
+		
+		- SqlSessionBean.java
+			- 데이터베이스에 연결하고 sql을 실행하기 위한 SqlSessionFactory 객체를 생성한다.
+			- mybatis/mybatis-config.xml 설정 내용에 따라 SqlSessionFactory 객체를 생성
+		
+		- db.properties
+			- url, driver, username, password 총 4개의 값이 저장되어 있다.
+		
+		- mybatis-config.xml (source 창 열어서 확인)
+			- db.properties 파일을 읽어오고, 데이터베이스 연결을 위한 설정값들이 저장된다.
+			- sql이 저장된 xml 파일을 지정한다. => <mappers><mapper resource="mybatis/member.xml"/></mappers>
+		
+		- member.xml (source 창 열어서 확인)
+			- sql이 저장된 xml 파일
+			- mybatis-config.xml 파일의 mappers 태그 안에서 지정된 파일!
+
+* sqlSessionFactory 생성 확인! => mybatisTest.jsp
+
+* mybatis의 dao 클래스
+	- SqlSessionFactory factory = SqlSessionBean.getSessionFactory(); => 전역변수
+	- SqlSession mapper = factory.openSession(); => 메소드의 지역변수
+					ㄴ 반드시 .close() 해야 한다. (!! 매우 중요 !!)
+	
+	- SqlSession 메소드 확인하기! (mapper.~ 에서 ~ 부분)
+		- int result  = mapper.insert("insert", vo);		// insert SQL 메소드
+		- int result = mapper.update("update", vo);			// update SQL 메소드
+		- int result = mapper.delete("deleteOne", custno);	// delete SQL 메소드
+		- Member result = mapper.selectOne("selectOne", custno);	// select 1행 SQL 메소드
+		- List<Member> result = mapper.selectList("selectAll");		// select 여러행 SQL 메소드
+		- 위 5개의 메소드에서 첫번째 인자는 sql의 id 속성값, 두번째 인자는 파라미터 타입이다.
+		- insert, update, delete는 resultType을 지정하지 않아도 반영된 행의 개수가 리턴된다.
+		- parameterType은 실행에 필요한 인자의 타입, resultType은 실행 후 결과값에 대한 타입
+	
